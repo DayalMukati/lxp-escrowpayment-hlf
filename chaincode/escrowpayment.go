@@ -22,105 +22,19 @@ type Escrow struct {
 }
 
 func (e *EscrowContract) CreateEscrow(ctx contractapi.TransactionContextInterface, escrowID string, payerID string, payeeID string, amount float64) error {
-	escrow := Escrow{
-		EscrowID:   escrowID,
-		PayerID:    payerID,
-		PayeeID:    payeeID,
-		Amount:     amount,
-		PayerApproved: false,
-		PayeeConfirmed: false,
-		Released:   false,
-	}
-
-	escrowAsBytes, err := json.Marshal(escrow)
-	if err != nil {
-		return fmt.Errorf("failed to marshal escrow: %s", err.Error())
-	}
-
-	return ctx.GetStub().PutState(escrowID, escrowAsBytes)
+	// Write the logic to Create a new escrow account where funds are locked until both the payer and payee approve.
 }
 
 func (e *EscrowContract) ApproveEscrow(ctx contractapi.TransactionContextInterface, escrowID string, approverID string) error {
-	escrowAsBytes, err := ctx.GetStub().GetState(escrowID)
-	if err != nil {
-		return fmt.Errorf("failed to get escrow: %s", err.Error())
-	}
-
-	if escrowAsBytes == nil {
-		return fmt.Errorf("escrow %s does not exist", escrowID)
-	}
-
-	escrow := new(Escrow)
-	err = json.Unmarshal(escrowAsBytes, escrow)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal escrow: %s", err.Error())
-	}
-
-	// Approve the escrow for the payer
-	if approverID == escrow.PayerID {
-		escrow.PayerApproved = true
-	} else if approverID == escrow.PayeeID {
-		escrow.PayeeConfirmed = true
-	} else {
-		return fmt.Errorf("approver is neither payer nor payee")
-	}
-
-	escrowAsBytes, err = json.Marshal(escrow)
-	if err != nil {
-		return fmt.Errorf("failed to marshal escrow: %s", err.Error())
-	}
-
-	return ctx.GetStub().PutState(escrowID, escrowAsBytes)
+	// Write the logic to Record an approval for the escrow by either the payer or payee.
 }
 
 func (e *EscrowContract) ReleaseEscrow(ctx contractapi.TransactionContextInterface, escrowID string) error {
-	escrowAsBytes, err := ctx.GetStub().GetState(escrowID)
-	if err != nil {
-		return fmt.Errorf("failed to get escrow: %s", err.Error())
-	}
-
-	if escrowAsBytes == nil {
-		return fmt.Errorf("escrow %s does not exist", escrowID)
-	}
-
-	escrow := new(Escrow)
-	err = json.Unmarshal(escrowAsBytes, escrow)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal escrow: %s", err.Error())
-	}
-
-	// Ensure both payer and payee have approved
-	if !escrow.PayerApproved || !escrow.PayeeConfirmed {
-		return fmt.Errorf("both parties have not approved the escrow")
-	}
-
-	escrow.Released = true
-
-	escrowAsBytes, err = json.Marshal(escrow)
-	if err != nil {
-		return fmt.Errorf("failed to marshal escrow: %s", err.Error())
-	}
-
-	return ctx.GetStub().PutState(escrowID, escrowAsBytes)
+	// Write the logic to Release the funds from escrow to the payee after both the payer and payee have approved the transaction.
 }
 
 func (e *EscrowContract) QueryEscrowStatus(ctx contractapi.TransactionContextInterface, escrowID string) (*Escrow, error) {
-	escrowAsBytes, err := ctx.GetStub().GetState(escrowID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get escrow: %s", err.Error())
-	}
-
-	if escrowAsBytes == nil {
-		return nil, fmt.Errorf("escrow %s does not exist", escrowID)
-	}
-
-	escrow := new(Escrow)
-	err = json.Unmarshal(escrowAsBytes, escrow)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal escrow: %s", err.Error())
-	}
-
-	return escrow, nil
+	// Write the logic to Retrieve the current status of an escrow account, including whether it has been approved and if the funds have been released.
 }
 
 func main() {
